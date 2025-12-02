@@ -67,10 +67,7 @@ const userSchema =  mongoose.Schema({
       {
         name: String,
         description: String,
-        techStack: [String],
         link: String,
-        startDate: String,
-        endDate: String,
         highlights: [String],
       },
     ],

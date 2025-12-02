@@ -8,6 +8,7 @@ export default function ProfileForm() {
     email: "",
     phone: "",
     role: "",
+    location: "",
     github: "",
     linkedin: "",
     portfolio: "",
@@ -26,7 +27,7 @@ export default function ProfileForm() {
     achievements: "",
     certifications: [{ name: "", issuingOrganization: "", issueDate: "", URL: "" }],
     Languages: [{ name: "", proficiency: "" }],
-    projects: [] 
+    projects: [ {name: "", description: "", highlights: "", link: ""} ], 
   });
 
   // Handle input for top-level fields
@@ -56,10 +57,18 @@ export default function ProfileForm() {
     setFormData({ ...formData, [type]: updatedArray });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Submitted Profile Data:", formData);
     // Later: send to backend API
+
+    const updatedUSer =  await fetch(`${BASE_URL}/api/users/profile`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData)
+    });
+
+  
   };
 
   return (
@@ -102,6 +111,25 @@ export default function ProfileForm() {
             onChange={handleChange}
             className="p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
           />
+          <input
+            type="text"
+            name="location"
+            placeholder="Current Location (City, Country)"
+            onChange={handleChange}
+            className="p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
+          />
+        </div>
+
+        { /* summary */ }
+        <div>
+          <h3 className="text-xl font-semibold text-white mb-3">Professional Summary</h3>
+          <textarea
+            name="summary"
+            placeholder="A brief summary about yourself, your career goals, and what you bring to the table."
+            rows="4"
+            onChange={handleChange}
+            className="w-full p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
+          ></textarea>
         </div>
 
         {/* Professional Links Section */}
@@ -399,6 +427,63 @@ export default function ProfileForm() {
   </button>
 </div>
 
+{ /* Projects Section */}
+<div>
+  <h3 className="text-xl font-semibold text-white mb-3">Projects</h3>
+  {formData.projects.map((project, index) => (
+    <div key={index} className="space-y-4 mb-4 border-b border-blue-500/10 pb-4">
+      <input
+        type="text"
+        placeholder="Project Name"
+        value={project.name}
+        onChange={(e) =>
+          handleArrayChange(index, "name", e.target.value, "projects")  
+        }
+        className="w-full p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
+      />
+      <textarea
+        placeholder="Project Description"
+        value={project.description}
+        onChange={(e) =>
+          handleArrayChange(index, "description", e.target.value, "projects")
+        }
+        className="w-full p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
+      ></textarea>
+      <input
+        type="url"
+        placeholder="Project Link (e.g. GitHub URL)"
+        value={project.link}
+        onChange={(e) =>
+          handleArrayChange(index, "link", e.target.value, "projects")
+        }
+        className="w-full p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
+      />
+      <input
+        type="text"
+        placeholder="Key Highlights (comma separated)"
+        value={project.highlights}
+        onChange={(e) =>
+          handleArrayChange(index, "highlights", e.target.value, "projects")
+        }
+        className="w-full p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
+      />
+
+      {/* Remove Button */}
+      {formData.projects.length > 1 && (
+        <button
+          type="button"
+          onClick={() => handleRemove("projects", index)}
+          className="text-red-400 hover:text-red-500 flex items-center mt-2"
+        >
+          <Trash2 size={18} />
+          <span className="ml-1 text-sm">Remove Project</span>
+        </button>
+      )}
+      </div>
+  ))}
+  
+</div>
+
 
         {/* Skills */}
         <div>
@@ -410,6 +495,96 @@ export default function ProfileForm() {
             onChange={handleChange}
             className="w-full p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
           />
+        </div>
+
+        { /* soft skills */}
+        <div>
+          <h3 className="text-xl font-semibold text-white mb-3">Soft Skills</h3>
+          <input
+            type="text"
+            name="softSkills"
+            placeholder="e.g. Leadership, Communication, Problem-Solving"
+            onChange={handleChange}
+            className="w-full p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
+          />
+        </div>    
+
+        { /* achievements */}
+        <div>
+          <h3 className="text-xl font-semibold text-white mb-3">Achievements</h3>
+          <textarea
+            name="achievements"
+            placeholder="List any notable achievements, awards, or recognitions you've received."
+            rows="4"
+            onChange={handleChange}
+            className="w-full p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
+          ></textarea>
+        </div>
+
+        { /* certifications */}
+        <div>
+          <h3 className="text-xl font-semibold text-white mb-3">Certifications</h3>  
+          {formData.certifications.map((cert, index) => (
+            <div key={index} className="space-y-3 mb-4 border-b border-blue-500/10 pb-3">
+              <input
+                type="text"
+                placeholder="Certification Name (e.g. AWS Certified Solutions Architect)"
+                value={cert.name}
+                onChange={(e) =>
+                  handleArrayChange(index, "name", e.target.value, "certifications")
+                }
+                className="w-full p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
+              />
+              <input
+                type="text"
+                placeholder="Issuing Organization (e.g. Amazon Web Services)"
+                value={cert.issuingOrganization}
+                onChange={(e) =>
+                  handleArrayChange(index, "issuingOrganization", e.target.value, "certifications")
+                }
+                className="w-full p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
+              />
+              <input
+                type="month"
+                value={cert.issueDate}
+                onChange={(e) =>
+                  handleArrayChange(index, "issueDate", e.target.value, "certifications")
+                }
+                className="w-full p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white"
+              />
+              <input
+                type="url"
+                placeholder="Certification URL (e.g. link to credential)"
+                value={cert.URL}
+                onChange={(e) =>
+                  handleArrayChange(index, "URL", e.target.value, "certifications")
+                }
+                className="w-full p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
+              />
+
+              {/* Remove Button */}
+              {formData.certifications.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => handleRemove("certifications", index)}
+                  className="text-red-400 hover:text-red-500 flex items-center mt-2"
+                >
+                  <Trash2 size={18} />
+                  <span className="ml-1 text-sm">Remove Certification</span>
+                </button>
+              )}
+            </div>
+          ))}
+
+          {/* Add More Button */}
+          <button
+            type="button"
+            onClick={() => handleAdd("certifications")}
+            className="flex items-center text-blue-400 hover:text-blue-300 mt-2"
+          >
+            <PlusCircle className="w-4 h-4 mr-2" /> Add More Certification
+          </button>
+
         </div>
 
         {/* Submit */}
