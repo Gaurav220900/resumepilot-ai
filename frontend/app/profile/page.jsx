@@ -1,6 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { PlusCircle, Trash2, Calendar, Languages } from "lucide-react";
+import {  useRouter} from 'next/navigation'
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 export default function ProfileForm() {
   const [formData, setFormData] = useState({
@@ -15,8 +17,8 @@ export default function ProfileForm() {
     additionalLinks: [
       { label: "", url: "" }
     ],
-    skills: "",
-    softSkills: "",
+    skills: [],
+    softSkills: [],
     summary: "",
     education: [
       { degree: "", institution: "", startDate: "", endDate: "" }
@@ -30,10 +32,34 @@ export default function ProfileForm() {
     projects: [ {name: "", description: "", highlights: "", link: ""} ], 
   });
 
+  const router = useRouter();
   // Handle input for top-level fields
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+   
+  const { name, value } = e.target;
+
+  if (name === "skills") {
+    setFormData(prev => ({ ...prev, skills: value.split(",").map(s => s.trim()) }));
+  } 
+  else if (name === "softSkills") {
+    setFormData(prev => ({ ...prev, softSkills: value.split(",").map(s => s.trim()) }));
+  }
+  else {
+    setFormData(prev => ({ ...prev, [name]: value }));
+  }
+};
+  
+
+useEffect(() => {
+  const savedData = localStorage.getItem("resume_profile");
+  if (savedData) {
+    setFormData(JSON.parse(savedData));
+  }
+}, []);
+
+useEffect(() => {
+  localStorage.setItem("resume_profile", JSON.stringify(formData));
+}, [formData]);
 
   // Handle dynamic array updates
   const handleArrayChange = (index, field, value, type) => {
@@ -44,11 +70,15 @@ export default function ProfileForm() {
 
   // Add new entry
   const handleAdd = (type) => {
-    const newItem =
-      type === "education"
-        ? { degree: "", institution: "", year: "" }
-        : { company: "", title: "", duration: "", description: "" };
-    setFormData({ ...formData, [type]: [...formData[type], newItem] });
+    const templates = {
+      education: { degree: "", institution: "", startDate: "", endDate: "" },
+      experience: { company: "", title: "", startDate: "", endDate: "", description: "" },
+      additionalLinks: { label: "", url: "" },
+      certifications: { name: "", issuingOrganization: "", issueDate: "", URL: "" },
+      projects: { name: "", description: "", highlights: "", link: "" },
+      Languages: { name: "", proficiency: "" }
+    };
+    setFormData({ ...formData, [type]: [...formData[type], templates[type]] });
   };
 
   // Remove entry
@@ -58,16 +88,21 @@ export default function ProfileForm() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log("Submitted Profile Data:", formData);
-    // Later: send to backend API
+  e.preventDefault();
+  console.log("Submitted Profile Data:", formData);
 
-    const updatedUSer =  await fetch(`${BASE_URL}/api/users/profile`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData)
-    });
+  // 1️⃣ Save to Local Storage
+  localStorage.setItem("resume_profile", JSON.stringify(formData));
 
+  // 2️⃣ (Optional) Save to backend too
+  // await fetch(`${BASE_URL}/api/users/profile`, {
+  //   method: "POST",
+  //   headers: { "Content-Type": "application/json" },
+  //   body: JSON.stringify(formData)
+  // });
+
+  // 3️⃣ Navigate to review page
+  router.push("/review");
   
   };
 
@@ -84,6 +119,7 @@ export default function ProfileForm() {
             type="text"
             name="name"
             placeholder="Full Name"
+            value={formData.name}
             onChange={handleChange}
             className="p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
           />
@@ -91,6 +127,7 @@ export default function ProfileForm() {
             type="email"
             name="email"
             placeholder="Email Address"
+            value={formData.email}
             onChange={handleChange}
             className="p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
           />
@@ -101,6 +138,7 @@ export default function ProfileForm() {
             type="text"
             name="phone"
             placeholder="Phone Number"
+            value={formData.phone}
             onChange={handleChange}
             className="p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
           />
@@ -108,6 +146,7 @@ export default function ProfileForm() {
             type="text"
             name="role"
             placeholder="Current Role (e.g. MERN Stack Developer)"
+            value={formData.role}
             onChange={handleChange}
             className="p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
           />
@@ -115,6 +154,7 @@ export default function ProfileForm() {
             type="text"
             name="location"
             placeholder="Current Location (City, Country)"
+            value={formData.location}
             onChange={handleChange}
             className="p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
           />
@@ -127,6 +167,7 @@ export default function ProfileForm() {
             name="summary"
             placeholder="A brief summary about yourself, your career goals, and what you bring to the table."
             rows="4"
+            value={formData.summary}
             onChange={handleChange}
             className="w-full p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
           ></textarea>
@@ -203,14 +244,16 @@ export default function ProfileForm() {
         focus:border-blue-500 outline-none text-white placeholder-gray-400"
       />
 
-      <button
-        type="button"
-        onClick={() => handleRemove("additionalLinks", index)}
-        className="text-red-400 hover:text-red-500 flex items-center mt-2"
-      >
-        <Trash2 size={18} />
-        <span className="ml-1 text-sm">Remove Link</span>
-      </button>
+      {formData.additionalLinks.length > 1 && (
+        <button
+          type="button"
+          onClick={() => handleRemove("additionalLinks", index)}
+          className="text-red-400 hover:text-red-500 flex items-center mt-2"
+        >
+          <Trash2 size={18} />
+          <span className="ml-1 text-sm">Remove Link</span>
+        </button>
+      )}
     </div>
   ))}
 
@@ -260,7 +303,7 @@ export default function ProfileForm() {
 
       {/* Start + End Dates */}
       <div className="grid md:grid-cols-2 gap-4">
-        <div className="flex flex-col">
+        <div className="flex flex-col relative">
           <label className="text-white-400 text-sm mb-1">Start Date</label>
           <input
             type="month"
@@ -270,13 +313,10 @@ export default function ProfileForm() {
             }
             className="p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white"
           />
-           <Calendar
-    className="absolute right-3 top-10 text-white/70 pointer-events-none"
-    size={18}
-  />
+          <Calendar className="absolute right-3 top-9 text-gray-400 pointer-events-none" size={18} />
         </div>
 
-        <div className="flex flex-col">
+        <div className="flex flex-col relative">
           <label className="text-white-400 text-sm mb-1">End Date</label>
           <input
             type="month"
@@ -286,10 +326,7 @@ export default function ProfileForm() {
             }
             className="p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white"
           />
-           <Calendar
-    className="absolute right-3 top-10 text-white/70 pointer-events-none"
-    size={18}
-  />
+          <Calendar className="absolute right-3 top-9 text-gray-400 pointer-events-none" size={18} />
         </div>
       </div>
 
@@ -359,7 +396,7 @@ export default function ProfileForm() {
 
       {/* Start + End Dates */}
       <div className="grid md:grid-cols-2 gap-4">
-        <div className="flex flex-col">
+        <div className="flex flex-col relative">
           <label className="text-white-400 text-sm mb-1">Start Date</label>
           <input
             type="month"
@@ -370,9 +407,10 @@ export default function ProfileForm() {
             className="p-3 rounded-lg bg-[#111735] border border-blue-500/20 
             focus:border-blue-500 outline-none text-white"
           />
+          <Calendar className="absolute right-3 top-9 text-gray-400 pointer-events-none" size={18} />
         </div>
 
-        <div className="flex flex-col">
+        <div className="flex flex-col relative">
           <label className="text-white-400 text-sm mb-1">End Date</label>
           <input
             type="month"
@@ -383,6 +421,7 @@ export default function ProfileForm() {
             className="p-3 rounded-lg bg-[#111735] border border-blue-500/20 
             focus:border-blue-500 outline-none text-white"
           />
+          <Calendar className="absolute right-3 top-9 text-gray-400 pointer-events-none" size={18} />
         </div>
       </div>
 
@@ -481,7 +520,14 @@ export default function ProfileForm() {
       )}
       </div>
   ))}
-  
+
+  <button
+    type="button"
+    onClick={() => handleAdd("projects")}
+    className="flex items-center text-blue-400 hover:text-blue-300 mt-2"
+  >
+    <PlusCircle className="w-4 h-4 mr-2" /> Add More Project
+  </button>
 </div>
 
 
@@ -492,6 +538,7 @@ export default function ProfileForm() {
             type="text"
             name="skills"
             placeholder="e.g. React, Node.js, MongoDB, Tailwind"
+            value={formData.skills.join(", ")}
             onChange={handleChange}
             className="w-full p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
           />
@@ -504,6 +551,7 @@ export default function ProfileForm() {
             type="text"
             name="softSkills"
             placeholder="e.g. Leadership, Communication, Problem-Solving"
+            value={formData.softSkills.join(", ")}
             onChange={handleChange}
             className="w-full p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
           />
@@ -516,6 +564,7 @@ export default function ProfileForm() {
             name="achievements"
             placeholder="List any notable achievements, awards, or recognitions you've received."
             rows="4"
+            value={formData.achievements}
             onChange={handleChange}
             className="w-full p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
           ></textarea>
@@ -544,14 +593,17 @@ export default function ProfileForm() {
                 }
                 className="w-full p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
               />
-              <input
-                type="month"
-                value={cert.issueDate}
-                onChange={(e) =>
-                  handleArrayChange(index, "issueDate", e.target.value, "certifications")
-                }
-                className="w-full p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white"
-              />
+              <div className="relative">
+                <input
+                  type="month"
+                  value={cert.issueDate}
+                  onChange={(e) =>
+                    handleArrayChange(index, "issueDate", e.target.value, "certifications")
+                  }
+                  className="w-full p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white"
+                />
+                <Calendar className="absolute right-3 top-3 text-gray-400 pointer-events-none" size={18} />
+              </div>
               <input
                 type="url"
                 placeholder="Certification URL (e.g. link to credential)"
@@ -586,6 +638,58 @@ export default function ProfileForm() {
           </button>
 
         </div>
+
+        {/* Languages Section */}
+        <div>
+          <h3 className="text-xl font-semibold text-white mb-3">Languages</h3>
+          {formData.Languages.map((lang, index) => (
+            <div key={index} className="grid md:grid-cols-2 gap-4 mb-4 border-b border-blue-500/10 pb-3">
+              <input
+                type="text"
+                placeholder="Language (e.g. English, Spanish)"
+                value={lang.name}
+                onChange={(e) =>
+                  handleArrayChange(index, "name", e.target.value, "Languages")
+                }
+                className="p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
+              />
+              <select
+                value={lang.proficiency}
+                onChange={(e) =>
+                  handleArrayChange(index, "proficiency", e.target.value, "Languages")
+                }
+                className="p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white"
+              >
+                <option value="">Select Proficiency</option>
+                <option value="Native">Native</option>
+                <option value="Fluent">Fluent</option>
+                <option value="Professional">Professional</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Basic">Basic</option>
+              </select>
+
+              {formData.Languages.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => handleRemove("Languages", index)}
+                  className="text-red-400 hover:text-red-500 flex items-center"
+                >
+                  <Trash2 size={18} />
+                  <span className="ml-1 text-sm">Remove Language</span>
+                </button>
+              )}
+            </div>
+          ))}
+
+  <button
+    type="button"
+    onClick={() => handleAdd("Languages")}
+    className="flex items-center text-blue-400 hover:text-blue-300"
+  >
+    <PlusCircle className="w-4 h-4 mr-2" /> Add More Language
+  </button>
+</div>
+
 
         {/* Submit */}
         <div className="flex justify-center pt-4">

@@ -1,14 +1,14 @@
 import express from 'express';
-import User from '../models/user.js';
+import User from '../models/User.js';
 
-exports.profileDetails = async (req, res) => {
+export const profileDetails = async (req, res) => {
     try{
         const id = req.user._id;
 
         if(!id){
             return res.status(400).json({ message: "User ID not found" });
         }
-        const updatedUser = await User.FindByIdAndUpdate(
+        const updatedUser = await User.findByIdAndUpdate(
             { _id: id },
             { $set: req.body },
             { new: true }
@@ -19,8 +19,9 @@ exports.profileDetails = async (req, res) => {
         }
 
         return res.status(200).json({
-        message: "Profile updated successfully",
-        user: updatedUser
+          success: true,
+          message: "Profile updated successfully",
+          user: updatedUser
         });
 
   } catch (error) {
@@ -29,3 +30,4 @@ exports.profileDetails = async (req, res) => {
   }
 
 }
+
