@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { PlusCircle, Trash2, Calendar, Languages } from "lucide-react";
 import {  useRouter} from 'next/navigation'
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
@@ -26,7 +26,7 @@ export default function ProfileForm() {
     experience: [
       { company: "", title: "", startDate: "", endDate: "", description: "" }
     ],
-    achievements: "",
+    achievements: [],
     certifications: [{ name: "", issuingOrganization: "", issueDate: "", URL: "" }],
     Languages: [{ name: "", proficiency: "" }],
     projects: [ {name: "", description: "", highlights: "", link: ""} ], 
@@ -37,16 +37,7 @@ export default function ProfileForm() {
   const handleChange = (e) => {
    
   const { name, value } = e.target;
-
-  if (name === "skills") {
-    setFormData(prev => ({ ...prev, skills: value.split(",").map(s => s.trim()) }));
-  } 
-  else if (name === "softSkills") {
-    setFormData(prev => ({ ...prev, softSkills: value.split(",").map(s => s.trim()) }));
-  }
-  else {
-    setFormData(prev => ({ ...prev, [name]: value }));
-  }
+  setFormData(prev => ({ ...prev, [name]: value }));
 };
   
 
@@ -89,11 +80,34 @@ useEffect(() => {
 
   const handleSubmit = async (e) => {
   e.preventDefault();
-  console.log("Submitted Profile Data:", formData);
+   const formattedData = {
+    ...formData,
+    skills: Array.isArray(formData.skills)
+    ? formData.skills
+    : formData.skills
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean),
+
+  softSkills: Array.isArray(formData.softSkills)
+    ? formData.softSkills
+    : formData.softSkills
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean),
+
+  achievements: Array.isArray(formData.achievements)
+    ? formData.achievements
+    : formData.achievements
+        .split("\n")
+        .map(line => line.trim())
+        .filter(Boolean),
+  };  
+
+  console.log("Submitted Profile Data:", formattedData);
 
   // 1️⃣ Save to Local Storage
-  localStorage.setItem("resume_profile", JSON.stringify(formData));
-
+  localStorage.setItem("resume_profile", JSON.stringify(formattedData));
   // 2️⃣ (Optional) Save to backend too
   // await fetch(`${BASE_URL}/api/users/profile`, {
   //   method: "POST",
@@ -538,7 +552,7 @@ useEffect(() => {
             type="text"
             name="skills"
             placeholder="e.g. React, Node.js, MongoDB, Tailwind"
-            value={formData.skills.join(", ")}
+            value={formData.skills}
             onChange={handleChange}
             className="w-full p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
           />
@@ -551,7 +565,7 @@ useEffect(() => {
             type="text"
             name="softSkills"
             placeholder="e.g. Leadership, Communication, Problem-Solving"
-            value={formData.softSkills.join(", ")}
+            value={formData.softSkills}
             onChange={handleChange}
             className="w-full p-3 rounded-lg bg-[#111735] border border-blue-500/20 focus:border-blue-500 outline-none text-white placeholder-gray-400"
           />

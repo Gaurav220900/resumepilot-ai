@@ -18,7 +18,7 @@ export default function ReviewPage() {
 
   return (
     <div className="max-w-5xl mx-auto py-10 text-gray-200">
-      <h1 className="text-3xl font-bold text-white mb-8 text-center">Review Your Information</h1>
+      <h1 className="text-3xl font-bold text-black mb-8 text-center">Review Your Information</h1>
 
       {/* SECTION WRAPPER */}
       <div className="space-y-10">
@@ -168,10 +168,10 @@ export default function ReviewPage() {
         </button>
 
         <button
-          onClick={()=> router.push("/templates")}
-          className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg"
+            onClick={() => router.push("/enhance")}
+            className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg"
         >
-          Continue → Select Template
+          Continue → Agent Enhancement
         </button>
       </div>
     </div>

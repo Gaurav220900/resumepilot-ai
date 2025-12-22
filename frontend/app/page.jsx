@@ -1,3 +1,5 @@
+"use client";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import React from "react";
 import { Button } from "../component/UI/Button";
@@ -5,6 +7,9 @@ import { Card, CardHeader, CardTitle, CardContent } from "../component/UI/Card";
 import { PlusCircle, Github, FileText, User, Wand2 } from "lucide-react";
 
 export default function Home() {
+
+  const router = useRouter();
+
   return (
    <div className="min-h-screen bg-gradient-to-br from-[#0a0f24] via-[#101936] to-[#1a2147] text-white px-6 py-10">
       {/* Header Section */}
@@ -78,7 +83,7 @@ export default function Home() {
   bg-gradient-to-r from-white/10 via-transparent to-white/10 p-4 rounded-xl shadow-md backdrop-blur-sm text-justify">
               Complete your profile with your education, key skills, and professional experience to generate highly tailored resumes. ResumePilot AI uses your data to craft content that perfectly aligns with your career goals and target roles.
             </p>
-            <Button variant="outline" className="mt-3 w-full border-blue-400 text-blue-300 hover:bg-blue-400/20">
+            <Button variant="outline" onClick={() => router.push("/profile")}  className="mt-3 w-full border-blue-400 text-blue-300 hover:bg-blue-400/20">
               Edit Profile
             </Button>
           </CardContent>
