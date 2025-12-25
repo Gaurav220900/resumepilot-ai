@@ -35,6 +35,12 @@ export default function ReviewPage() {
           </div>
         </div>
 
+        {/* SUMMARY */}
+        <div className="bg-[#1d254f]/60 border border-blue-500/20 p-6 rounded-xl shadow-lg">
+          <h2 className="text-xl font-semibold text-white mb-4">Summary</h2>
+          <p className="text-gray-300">{user.summary}</p>
+        </div>
+
         {/* LINKS */}
         <div className="bg-[#1d254f]/60 border border-blue-500/20 p-6 rounded-xl shadow-lg">
           <h2 className="text-xl font-semibold text-white mb-4">Professional Links</h2>
@@ -72,16 +78,7 @@ export default function ReviewPage() {
                 </p>
                 )}
 
-                {project.techStack?.length > 0 && (
-                <p className="text-gray-300 text-sm">
-                    <strong className="text-white">Tech Used:</strong> {project.techStack.join(", ")}
-                </p>
-                )}
-
-                <p className="text-gray-400 text-sm flex items-center">
-                {project.startDate} → {project.endDate}
-                </p>
-
+               
                 {project.description && (
                 <p className="text-gray-300 mt-2">{project.description}</p>
                 )}

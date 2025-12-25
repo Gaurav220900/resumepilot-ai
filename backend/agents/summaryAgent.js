@@ -1,11 +1,15 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { JsonOutputParser } from "@langchain/core/output_parsers";
 import { RunnableSequence } from "@langchain/core/runnables";
 
 const llm = new ChatGoogleGenerativeAI({
-  model: "gemini-1.5-flash",   // fast + free tier model
+  model: "gemini-2.5-flash-lite",   // fast + free tier model
   temperature: 0.6,
+  apiKey: process.env.GOOGLE_API_KEY,
   maxOutputTokens: 512,
 });
 
@@ -27,9 +31,9 @@ DO NOT include placeholder content.
 
 Return response in pure JSON format:
 
-{
-  "summary": "string"
-}
+{{ 
+  "summary": "string" 
+}}
 
 User Summary:
 {summary}

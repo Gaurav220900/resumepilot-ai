@@ -10,6 +10,7 @@ export default function EnhancePage() {
   const router = useRouter();
 
   const [user, setUser] = useState(initialData);
+  const [loadingSection, setLoadingSection] = useState(null);
   const [aiData, setAiData] = useState({
     summary: null,
     experience: user.experience?.map(() => null) || [],
@@ -17,6 +18,10 @@ export default function EnhancePage() {
     achievements: null,
     skills: null,
   });
+
+  const Spinner = () => (
+  <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+);
 
   // Save user changes automatically to local storage
   useEffect(() => {
@@ -30,8 +35,36 @@ export default function EnhancePage() {
   };
 
   const enhanceSection = async (section, index = null) => {
-    alert(`Enhance ${section} section (backend coming soon)`);
-  };
+  if (section === "summary") {
+   try {
+    setLoadingSection("summary");
+
+    const res = await fetch("http://localhost:5000/api/ai/enhance-summary", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        summary: user.summary
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      setAiData(prev => ({
+        ...prev,
+        summary: data.summary
+      }));
+    } else {
+      alert(data.error || "Failed to enhance summary");
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert("Something went wrong while enhancing summary");
+  } finally {
+    setLoadingSection(null);
+  }
+  }};
 
   const regenerateSection = (section, index = null) => {
     enhanceSection(section, index);
@@ -98,6 +131,7 @@ export default function EnhancePage() {
         regenerateSection={regenerateSection}
         acceptAI={acceptAI}
         rejectAI={rejectAI}
+        loadingSection={loadingSection}
       />
 
       {/* Experience Section */}
@@ -110,6 +144,7 @@ export default function EnhancePage() {
         regenerateSection={regenerateSection}
         acceptAI={acceptAI}
         rejectAI={rejectAI}
+        loadingSection={loadingSection}
       />
 
       {/* Projects Section */}
@@ -122,6 +157,7 @@ export default function EnhancePage() {
         regenerateSection={regenerateSection}
         acceptAI={acceptAI}
         rejectAI={rejectAI}
+        loadingSection={loadingSection}
       />
 
       {/* Achievements Section */}
@@ -134,6 +170,7 @@ export default function EnhancePage() {
         regenerateSection={regenerateSection}
         acceptAI={acceptAI}
         rejectAI={rejectAI}
+        loadingSection={loadingSection}
       />
 
       {/* Skills Section */}
@@ -146,6 +183,7 @@ export default function EnhancePage() {
         regenerateSection={regenerateSection}
         acceptAI={acceptAI}
         rejectAI={rejectAI}
+        loadingSection={loadingSection}
       />
 
       {/* Continue Button */}
@@ -159,7 +197,7 @@ export default function EnhancePage() {
       </div>
     </div>
   );
-}
+
 
 /* ---------------------------
    Single Section Component
@@ -173,8 +211,15 @@ function SectionBlock({
   enhanceSection, 
   regenerateSection, 
   acceptAI, 
-  rejectAI 
+  rejectAI,
+  loadingSection
 }) {
+  const isLoading = loadingSection === sectionKey;
+  
+  const Spinner = () => (
+    <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+  );
+
   return (
     <div className="bg-[#1d254f]/60 border border-blue-500/20 p-6 rounded-xl shadow-lg mt-6">
       <h2 className="text-xl font-semibold text-white mb-4">{sectionName}</h2>
@@ -194,11 +239,24 @@ function SectionBlock({
 
       <div className="flex gap-3 mt-4">
         {!aiContent ? (
-          <button 
-            onClick={() => enhanceSection(sectionKey)} 
-            className="px-3 py-2 bg-blue-600 text-white rounded-lg"
+           <button
+            onClick={() => enhanceSection(sectionKey)}
+            disabled={isLoading}
+            className={`px-3 py-2 rounded-lg flex items-center gap-2
+              ${
+                isLoading
+                  ? "bg-gray-500 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }`}
           >
-            Enhance ✨
+            {isLoading ? (
+              <>
+                <Spinner />
+                Enhancing...
+              </>
+            ) : (
+              <>✨ Enhance</>
+            )}
           </button>
         ) : (
           <>
@@ -218,9 +276,22 @@ function SectionBlock({
 
             <button
               onClick={() => regenerateSection(sectionKey)}
-              className="px-3 py-2 bg-purple-600 text-white rounded-lg"
+              disabled={isLoading}
+              className={`px-3 py-2 rounded-lg flex items-center gap-2
+                ${
+                  isLoading
+                    ? "bg-gray-500 cursor-not-allowed"
+                    : "bg-purple-600 hover:bg-purple-700"
+                }`}
             >
-              Regenerate 🔁
+              {isLoading ? (
+                <>
+                  <Spinner />
+                  Regenerating...
+                </>
+              ) : (
+                <>Regenerate 🔁</>
+              )}
             </button>
           </>
         )}
@@ -241,62 +312,98 @@ function MultiSectionBlock({
   enhanceSection,
   regenerateSection,
   acceptAI,
-  rejectAI
+  rejectAI,
+  loadingSection
 }) {
+  const Spinner = () => (
+    <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+  );
+
   return (
     <div className="bg-[#1d254f]/60 border border-blue-500/20 p-6 rounded-xl shadow-lg mt-6">
       <h2 className="text-xl font-semibold text-white mb-4">{title}</h2>
 
-      {data?.map((item, index) => (
-        <div key={index} className="mb-6 pb-6 border-b border-white/10">
-          <p className="text-gray-300 whitespace-pre-line">
-            {item.description || "No description provided."}
-          </p>
+      {data?.map((item, index) => {
+        const isLoading = loadingSection === `${sectionKey}-${index}`;
+        
+        return (
+          <div key={index} className="mb-6 pb-6 border-b border-white/10">
+            <p className="text-gray-300 whitespace-pre-line">
+              {item.description || "No description provided."}
+            </p>
 
-          {aiData[sectionKey][index] && (
-            <div className="mt-4 bg-black/30 border border-green-500/30 p-4 rounded-lg">
-              <h3 className="text-green-400 text-sm font-bold">AI Suggested</h3>
-              <p className="text-gray-200 whitespace-pre-line mt-2">
-                {aiData[sectionKey][index]}
-              </p>
-            </div>
-          )}
-
-          <div className="flex gap-3 mt-4">
-            {!aiData[sectionKey][index] ? (
-              <button
-                onClick={() => enhanceSection(sectionKey, index)}
-                className="px-3 py-2 bg-blue-600 text-white rounded-lg"
-              >
-                Enhance ✨
-              </button>
-            ) : (
-              <>
-                <button
-                  onClick={() => acceptAI(sectionKey, index)}
-                  className="px-3 py-2 bg-green-600 text-white rounded-lg"
-                >
-                  Accept ✔
-                </button>
-
-                <button
-                  onClick={() => rejectAI(sectionKey, index)}
-                  className="px-3 py-2 bg-red-600 text-white rounded-lg"
-                >
-                  Ignore ✖
-                </button>
-
-                <button
-                  onClick={() => regenerateSection(sectionKey, index)}
-                  className="px-3 py-2 bg-purple-600 text-white rounded-lg"
-                >
-                  Regenerate 🔁
-                </button>
-              </>
+            {aiData[sectionKey][index] && (
+              <div className="mt-4 bg-black/30 border border-green-500/30 p-4 rounded-lg">
+                <h3 className="text-green-400 text-sm font-bold">AI Suggested</h3>
+                <p className="text-gray-200 whitespace-pre-line mt-2">
+                  {aiData[sectionKey][index]}
+                </p>
+              </div>
             )}
+
+            <div className="flex gap-3 mt-4">
+              {!aiData[sectionKey][index] ? (
+                <button
+                  onClick={() => enhanceSection(sectionKey, index)}
+                  disabled={isLoading}
+                  className={`px-3 py-2 rounded-lg flex items-center gap-2
+                    ${
+                      isLoading
+                        ? "bg-gray-500 cursor-not-allowed"
+                        : "bg-blue-600 hover:bg-blue-700"
+                    }`}
+                >
+                  {isLoading ? (
+                    <>
+                      <Spinner />
+                      Enhancing...
+                    </>
+                  ) : (
+                    <>Enhance ✨</>
+                  )}
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={() => acceptAI(sectionKey, index)}
+                    className="px-3 py-2 bg-green-600 text-white rounded-lg"
+                  >
+                    Accept ✔
+                  </button>
+
+                  <button
+                    onClick={() => rejectAI(sectionKey, index)}
+                    className="px-3 py-2 bg-red-600 text-white rounded-lg"
+                  >
+                    Ignore ✖
+                  </button>
+
+                  <button
+                    onClick={() => regenerateSection(sectionKey, index)}
+                    disabled={isLoading}
+                    className={`px-3 py-2 rounded-lg flex items-center gap-2
+                      ${
+                        isLoading
+                          ? "bg-gray-500 cursor-not-allowed"
+                          : "bg-purple-600 hover:bg-purple-700"
+                      }`}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Spinner />
+                        Regenerating...
+                      </>
+                    ) : (
+                      <>Regenerate 🔁</>
+                    )}
+                  </button>
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
+}
 }

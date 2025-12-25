@@ -5,7 +5,7 @@ import {  useRouter} from 'next/navigation'
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 export default function ProfileForm() {
-  const [formData, setFormData] = useState({
+  /*const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
@@ -30,7 +30,97 @@ export default function ProfileForm() {
     certifications: [{ name: "", issuingOrganization: "", issueDate: "", URL: "" }],
     Languages: [{ name: "", proficiency: "" }],
     projects: [ {name: "", description: "", highlights: "", link: ""} ], 
-  });
+  }); */
+
+  const [formData, setFormData] = useState({
+  name: "Gaurav Kumar",
+  email: "gaurav.kumar@example.com",
+  phone: "7079997400",
+  role: "Full Stack Developer",
+  location: "Noida, India",
+
+  github: "https://github.com/gauravkumar",
+  linkedin: "https://linkedin.com/in/gauravkumar",
+  portfolio: "https://gauravkumar.dev",
+
+  additionalLinks: [
+    { label: "LeetCode", url: "https://leetcode.com/gauravkumar" }
+  ],
+
+  summary:
+    "Full Stack Developer with 2+ years of experience building scalable web applications using the MERN stack. Strong problem-solving skills with a focus on clean architecture, performance optimization, and user-centric design.",
+
+  skills: [
+    "React",
+    "Next.js",
+    "Node.js",
+    "Express",
+    "MongoDB",
+    "MySQL",
+    "Prisma",
+    "Tailwind CSS"
+  ],
+
+  softSkills: [
+    "Leadership",
+    "Communication",
+    "Problem Solving",
+    "Team Collaboration"
+  ],
+
+  education: [
+    {
+      degree: "Bachelor of Technology in Computer Science",
+      institution: "XYZ Institute of Technology",
+      startDate: "2019-08",
+      endDate: "2023-05"
+    }
+  ],
+
+  experience: [
+    {
+      company: "Hestabit Technologies",
+      title: "Software Engineer",
+      startDate: "2023-06",
+      endDate: "Present",
+      description:
+        "Worked on building and maintaining full-stack web applications using React and Node.js. Collaborated with cross-functional teams to deliver scalable features and improved API performance."
+    }
+  ],
+
+  achievements: [
+    "ICPC Regionalist",
+    "Co-founder of CodeChef College Chapter",
+    "Solved 500+ DSA problems across coding platforms"
+  ],
+
+  certifications: [
+    {
+      name: "Full Stack Web Development",
+      issuingOrganization: "Coursera",
+      issueDate: "2022-09",
+      URL: "https://coursera.org/verify/example"
+    }
+  ],
+
+  Languages: [
+    { name: "English", proficiency: "Fluent" },
+    { name: "Hindi", proficiency: "Native" }
+  ],
+
+  projects: [
+    {
+      name: "ResumePilot AI",
+      description:
+        "AI-powered resume builder that helps users create ATS-friendly resumes using intelligent agents.",
+      highlights: [
+        "Built using Next.js, Node.js, MongoDB, LangChain, and Gemini AI"
+      ],
+      link: "https://github.com/gauravkumar/resumepilot-ai"
+    }
+  ]
+});
+
 
   const router = useRouter();
   // Handle input for top-level fields
