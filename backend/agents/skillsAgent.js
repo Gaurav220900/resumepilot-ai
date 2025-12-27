@@ -7,34 +7,33 @@ import { JsonOutputParser } from "@langchain/core/output_parsers";
 import { RunnableSequence } from "@langchain/core/runnables";
 
 const llm = new ChatGoogleGenerativeAI({
-  model: "gemini-1.5-flash",
-  temperature: 0.6,
-  maxOutputTokens: 700,
+  model: "gemini-2.5-flash-lite",
+  temperature: 0.4,
+  maxOutputTokens: 500,
 });
 
 const parser = new JsonOutputParser();
 
 const prompt = PromptTemplate.fromTemplate(`
-You are a resume PROJECT DESCRIPTION agent.
+You are a SKILLS optimization agent.
 
-Rewrite the project description to:
-- highlight problem solved
-- mention technologies
-- focus on impact and responsibility
-- be resume-ready
-- use bullet points
+Reorder and refine skills to:
+- prioritize ATS relevance
+- group related skills logically
+- remove redundancy
+- keep only resume-worthy skills
 
 Return ONLY valid JSON:
 
 {{ 
-  "project": "string"
+  "skills": ["string"]
 }}
 
-Project input:
-{project}
+Skills input:
+{skills}
 `);
 
-export const projectsAgent = RunnableSequence.from([
+export const skillsAgent = RunnableSequence.from([
   prompt,
   llm,
   parser

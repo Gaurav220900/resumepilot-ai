@@ -64,7 +64,126 @@ export default function EnhancePage() {
   } finally {
     setLoadingSection(null);
   }
-  }};
+  }
+
+  else if (section === "achievements") {
+    try {
+    setLoadingSection("achievements");
+
+      const res = await fetch("http://localhost:5000/api/ai/enhance-achievements", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          achievements: user.achievements
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setAiData(prev => ({
+          ...prev,
+          achievements: data.achievements
+        }));
+      } else {
+        alert(data.error || "Failed to enhance achievements");
+      }
+
+  } catch (err) {
+    console.error(err);
+    alert("Something went wrong while enhancing achievements");
+  } finally {
+    setLoadingSection(null);
+  }
+}else if(section === "skills") {
+    try {
+    setLoadingSection("skills");
+
+      const res = await fetch("http://localhost:5000/api/ai/enhance-skills", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          skills: user.skills
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setAiData(prev => ({
+          ...prev,
+          skills: data.skills
+        }));
+      } else {
+        alert(data.error || "Failed to enhance skills");
+      }
+
+  } catch (err) {
+    console.error(err);
+    alert("Something went wrong while enhancing skills");
+  } finally {
+    setLoadingSection(null);
+  }
+  }else if (section === "experience") {
+    try {
+      setLoadingSection("experience");
+
+      const res = await fetch("http://localhost:5000/api/ai/enhance-experience", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          experience: user.experience[index]
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setAiData(prev => ({
+          ...prev,
+          experience: prev.experience.map((v, i) => i === index ? data.experience : v)
+        }));
+      } else {
+        alert(data.error || "Failed to enhance experience");
+      }
+
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong while enhancing experience");
+    } finally {
+      setLoadingSection(null);
+    }
+  } else if (section === "projects") {
+    try {
+      setLoadingSection("projects");
+
+      const res = await fetch("http://localhost:5000/api/ai/enhance-projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          projects: user.projects[index]
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setAiData(prev => ({
+          ...prev,
+          projects: prev.projects.map((v, i) => i === index ? data.projects : v)
+        }));
+      } else {
+        alert(data.error || "Failed to enhance projects");
+      }
+
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong while enhancing projects");
+    } finally {
+      setLoadingSection(null);
+    }
+  }
+}
 
   const regenerateSection = (section, index = null) => {
     enhanceSection(section, index);
@@ -328,6 +447,22 @@ function MultiSectionBlock({
         
         return (
           <div key={index} className="mb-6 pb-6 border-b border-white/10">
+            {/* Display item details based on section type */}
+            {sectionKey === "experience" && (
+              <div className="mb-3">
+                <h4 className="text-white font-semibold">{item.company} - {item.title}</h4>
+                <p className="text-gray-400 text-sm">{item.startDate} to {item.endDate}</p>
+              </div>
+            )}
+            
+            {sectionKey === "projects" && (
+              <div className="mb-3">
+                <h4 className="text-white font-semibold">{item.name}</h4>
+                {item.link && <p className="text-blue-400 text-sm">{item.link}</p>}
+                {item.highlights && <p className="text-gray-400 text-sm">Highlights: {item.highlights}</p>}
+              </div>
+            )}
+            
             <p className="text-gray-300 whitespace-pre-line">
               {item.description || "No description provided."}
             </p>

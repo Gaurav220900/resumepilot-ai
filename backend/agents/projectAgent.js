@@ -8,33 +8,34 @@ import { RunnableSequence } from "@langchain/core/runnables";
 
 const llm = new ChatGoogleGenerativeAI({
   model: "gemini-2.5-flash-lite",
-  temperature: 0.5,
-  maxOutputTokens: 600,
+  temperature: 0.6,
+  maxOutputTokens: 700,
 });
 
 const parser = new JsonOutputParser();
 
 const prompt = PromptTemplate.fromTemplate(`
-You are an ACHIEVEMENTS optimization agent.
+You are a resume PROJECT DESCRIPTION agent.
 
-Rewrite achievements to:
-- be result-oriented
-- use action verbs
-- remove fluff
-- make them resume-impactful
+Rewrite the project description to:
+- highlight problem solved
+- mention technologies
+- focus on impact and responsibility
+- be resume-ready
 - use bullet points
+- don't use placeholder text
 
 Return ONLY valid JSON:
 
 {{ 
-  "achievements": ["string"]
+  "project": ["string"]
 }}
 
-Achievements input:
-{achievements}
+Project input:
+{project}
 `);
 
-export const achievementsAgent = RunnableSequence.from([
+export const projectsAgent = RunnableSequence.from([
   prompt,
   llm,
   parser

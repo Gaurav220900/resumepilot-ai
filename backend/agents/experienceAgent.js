@@ -7,7 +7,7 @@ import { JsonOutputParser } from "@langchain/core/output_parsers";
 import { RunnableSequence } from "@langchain/core/runnables";
 
 const llm = new ChatGoogleGenerativeAI({
-  model: "gemini-1.5-flash",
+  model: "gemini-2.5-flash-lite",
   temperature: 0.6,
   maxOutputTokens: 700,
 });

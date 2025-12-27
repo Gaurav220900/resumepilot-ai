@@ -7,6 +7,10 @@ import connectDB from './config/db.js';
 
 import userRoutes from './routes/userRoutes.js';
 import summaryRoutes from "./routes/summaryRoutes.js";
+import achievementRoutes from "./routes/achievementRoutes.js";
+import experienceRoutes from './routes/experienceRoutes.js';
+import skillsRoutes from './routes/skillsRoutes.js';
+import projectRoutes from './routes/projectRoutes.js';
 
 const app = express();
 
@@ -20,6 +24,11 @@ app.get('/', (req, res) => {
 
 app.use('/api/users', userRoutes);
 app.use("/api/ai", summaryRoutes);
+app.use("/api/ai", achievementRoutes);
+app.use('/api/ai', experienceRoutes);
+app.use('/api/ai', skillsRoutes);
+app.use('/api/ai', projectRoutes);
+
 
 
 const PORT = process.env.PORT || 5000;
