@@ -17,18 +17,25 @@ const parser = new JsonOutputParser();
 const prompt = PromptTemplate.fromTemplate(`
 You are a resume PROJECT DESCRIPTION agent.
 
-Rewrite the project description to:
-- highlight problem solved
-- mention technologies
-- focus on impact and responsibility
-- be resume-ready
-- use bullet points
-- don't use placeholder text
+Rewrite the project description into **resume-ready bullet points**.
 
-Return ONLY valid JSON:
+Guidelines:
+- Clearly state the problem the project solves
+- Mention key technologies and tools used
+- Highlight impact, responsibility, or outcome
+- Use strong action verbs
+- Keep each bullet concise (1–2 lines max)
+- Do NOT use placeholder text
+- Do NOT add information not present in the input
+
+Return ONLY valid JSON in this exact format:
 
 {{ 
-  "project": ["string"]
+  "project": [
+    "bullet point 1",
+    "bullet point 2",
+    "bullet point 3"
+  ]
 }}
 
 Project input:

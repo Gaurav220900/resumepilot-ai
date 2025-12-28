@@ -31,8 +31,38 @@ export default function EnhancePage() {
   // Generic handlers
 
   const enhanceAllSections = async () => {
-    alert("Enhance entire resume (backend coming soon)");
-  };
+  try {
+    setLoadingSection("all");
+
+    const res = await fetch("http://localhost:5000/api/ai/enhance-all", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(user),
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      alert(data.error || "Enhancement failed");
+      return;
+    }
+
+    setAiData({
+      summary: data.summary,
+      experience: data.experience,
+      projects: data.projects,
+      achievements: data.achievements,
+      skills: data.skills,
+    });
+  } catch (err) {
+    console.error(err);
+    alert("Something went wrong while enhancing resume");
+  } finally {
+    setLoadingSection(null);
+  }
+};
+
+  
 
   const enhanceSection = async (section, index = null) => {
   if (section === "summary") {
@@ -333,7 +363,7 @@ function SectionBlock({
   rejectAI,
   loadingSection
 }) {
-  const isLoading = loadingSection === sectionKey;
+  const isLoading = loadingSection === sectionKey || loadingSection === "all";
   
   const Spinner = () => (
     <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -443,7 +473,7 @@ function MultiSectionBlock({
       <h2 className="text-xl font-semibold text-white mb-4">{title}</h2>
 
       {data?.map((item, index) => {
-        const isLoading = loadingSection === `${sectionKey}-${index}`;
+        const isLoading = loadingSection === `${sectionKey}-${index}` || loadingSection === "all";
         
         return (
           <div key={index} className="mb-6 pb-6 border-b border-white/10">
@@ -463,16 +493,26 @@ function MultiSectionBlock({
               </div>
             )}
             
-            <p className="text-gray-300 whitespace-pre-line">
-              {item.description || "No description provided."}
-            </p>
+            <div className="text-gray-300">
+              {Array.isArray(item.description) 
+                ? item.description.map((line, i) => (
+                    <p key={i} className="whitespace-pre-line">-{line}</p>
+                  ))
+                : <p className="whitespace-pre-line">{item.description || "No description provided."}</p>
+              }
+            </div>
 
             {aiData[sectionKey][index] && (
               <div className="mt-4 bg-black/30 border border-green-500/30 p-4 rounded-lg">
                 <h3 className="text-green-400 text-sm font-bold">AI Suggested</h3>
-                <p className="text-gray-200 whitespace-pre-line mt-2">
-                  {aiData[sectionKey][index]}
-                </p>
+                <div className="text-gray-200 mt-2">
+                  {Array.isArray(aiData[sectionKey][index]) 
+                    ? aiData[sectionKey][index].map((line, i) => (
+                        <p key={i} className="whitespace-pre-line">-{line}</p>
+                      ))
+                    : <p className="whitespace-pre-line">{aiData[sectionKey][index]}</p>
+                  }
+                </div>
               </div>
             )}
 

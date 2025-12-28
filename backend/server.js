@@ -11,6 +11,7 @@ import achievementRoutes from "./routes/achievementRoutes.js";
 import experienceRoutes from './routes/experienceRoutes.js';
 import skillsRoutes from './routes/skillsRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
+import fullResumeRoutes from './routes/fullResumeRoutes.js';
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use("/api/ai", achievementRoutes);
 app.use('/api/ai', experienceRoutes);
 app.use('/api/ai', skillsRoutes);
 app.use('/api/ai', projectRoutes);
+app.use('/api/ai', fullResumeRoutes);
 
 
 
