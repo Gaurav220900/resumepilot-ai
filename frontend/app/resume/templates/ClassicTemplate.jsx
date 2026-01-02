@@ -82,6 +82,27 @@ export default function ClassicTemplate({ data }) {
           ))}
         </section>
       )}
+      {/* Certifications */}
+      { data.certifications?.length > 0 && (
+        <section className="mt-6">
+          <h2 className="text-lg font-bold border-b pb-1">Certifications</h2>
+          {data.certifications.map((cert, i) => (
+            <div key={i} className="mt-3">
+              <p className="font-bold">{cert.name} — {cert.issuingOrganization}</p>
+              <p className="text-sm text-gray-700">Issued: {cert.issueDate}</p>
+              <p className="text-sm text-gray-700">Certificate url: {cert.URL}</p>
+            </div>
+          ))}
+        </section>
+      )}
+      { /* languages */}
+      { data.Languages?.length > 0 && (
+        <section className="mt-6">
+          <h2 className="text-lg font-bold border-b pb-1">Languages</h2>
+          <p className="text-sm mt-2">{data.Languages.map(lang => `${lang.name} (${lang.proficiency})`).join(", ")}</p>
+        </section>
+      )}
+
     </div>
   );
 }
